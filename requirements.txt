@@ -1,0 +1,5 @@
+numpy
+pandas
+streamlit
+streamlit_option_menu
+st-gsheets-connection
