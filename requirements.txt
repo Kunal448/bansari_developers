@@ -3,4 +3,4 @@ pandas
 streamlit
 streamlit_option_menu
 st-gsheets-connection
-base64
+pybase64
