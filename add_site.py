@@ -9,7 +9,7 @@ def page1():
     url = "https://docs.google.com/spreadsheets/d/1OliyAKJqz_A2NNVcRBdEpkqnUrnGOLaWsAD1niC9F9U/edit?usp=sharing"
     conn = st.connection("gsheets", type = GSheetsConnection)
     
-    data = conn.read(worksheet="Sheet1", ttl=2)
+    data = conn.read(worksheet="Sheet1", ttl=0)
     df = pd.DataFrame(data)
     max_site = df['Sheet'].max()  
     site, _ = st.columns([1, 1])
@@ -20,7 +20,7 @@ def page1():
     save_site = st.button("Add Site")
         
     if save_site:
-        existing_data = conn.read(worksheet="Sheet1", usecols=list(range(2)), ttl=2)
+        existing_data = conn.read(worksheet="Sheet1", usecols=list(range(2)), ttl=0)
         existing_data = existing_data.dropna(how="all")            
         result_data = pd.DataFrame(
             [
@@ -32,4 +32,5 @@ def page1():
         )        
         updated_df = pd.concat([existing_data, result_data], ignore_index=True)    
         conn.update(worksheet="Sheet1", data=updated_df)        
+
         st.success("New Site Saved Successfully")
