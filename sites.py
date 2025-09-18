@@ -2,49 +2,52 @@ import pandas as pd
 import streamlit as st # type: ignore
 from streamlit_gsheets import GSheetsConnection # type: ignore
 from datetime import date
+import base64
 
 
 
 # Main Function
 
 def page2():
-    st.title("Sites Page")
+    def get_base64_of_image(file_path):
+        with open(file_path, "rb") as f:
+            data = f.read()
+            return base64.b64encode(data).decode()
+
+    # Encode the image
+    background_image_base64 = get_base64_of_image("construction.png")
+    
+    # Inject CSS
+    page_bg_css = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("data:image/png;base64,{background_image_base64}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    [data-testid="stAppViewContainer"]::before {{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0, 0.85); /* White overlay with 60% opacity */
+        z-index: 0;
+    }}
+    </style>
+    """
+    
+    st.markdown(page_bg_css, unsafe_allow_html=True)
+    st.title("🏗️ Sites Page")
     st.write("Welcome to the Sites Page!")
     
     url = "https://docs.google.com/spreadsheets/d/1OliyAKJqz_A2NNVcRBdEpkqnUrnGOLaWsAD1niC9F9U/edit?usp=sharing"
     conn = st.connection("gsheets", type = GSheetsConnection)
     
     data = conn.read(worksheet="Sheet1", ttl=2)
-    df = pd.DataFrame(data)
-    
-    
-    
-    
-    
-    # Adding New Site
-      
-    max_site = df['Sheet'].max()  
-    site, _ = st.columns([1, 1])
-    with site:
-        site1 = st.text_input("Site Name", str(), placeholder="Type site name here...")
-        site_str = str(site1)
-        
-    save_site = st.button("Add Site")
-        
-    if save_site:
-        existing_data = conn.read(worksheet="Sheet1", usecols=list(range(2)), ttl=2)
-        existing_data = existing_data.dropna(how="all")            
-        result_data = pd.DataFrame(
-            [
-                {
-                    "Sheet": max_site + 1,
-                    "Sites": site_str
-                }
-            ]
-        )        
-        updated_df = pd.concat([existing_data, result_data], ignore_index=True)    
-        conn.update(worksheet="Sheet1", data=updated_df)        
-        st.success("New Site Saved Successfully")        
+    df = pd.DataFrame(data)       
         
     l = df['Sites'].tolist()
     site_select = st.selectbox("Select Site", l)    
