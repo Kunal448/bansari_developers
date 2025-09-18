@@ -17,13 +17,13 @@ with st.sidebar:
         }
     )
 
-if st.session_state.selected == "Home":
+if selected == "Home":
     home.page()
-elif st.session_state.selected == "Add Site":
+elif selected == "Add Site":
     add_site.page1()
-elif st.session_state.selected == "Sites":
+elif selected == "Sites":
     sites.page2()
-elif st.session_state.selected == "JCB":
+elif selected == "JCB":
     st.write("JCB Profits")
 else:
     st.warning("Select Page Above")
