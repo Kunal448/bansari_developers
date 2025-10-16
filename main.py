@@ -21,9 +21,9 @@ if selected == "Home":
     home.page()
 elif selected == "Add Site":
     add_site.page1()
-elif selected == "Sites":
+elif selected == "Manage Sites":
     sites.page2()
-elif selected == "JCB Work":
+elif selected == "Manage JCB":
     jcb_work.page3()
 elif selected == "Add Ledger":
     add_ledger.page4()
