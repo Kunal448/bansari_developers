@@ -1,24 +1,61 @@
 import pandas as pd
 import streamlit as st # type: ignore
 from streamlit_gsheets import GSheetsConnection # type: ignore
-from datetime import date
+from datetime import datetime
 import base64
 
 def page3():
-    st.title("🏗️ JCB Work")
-    st.write("Welcome to the JCB Page!")
+    def get_base64_of_image(file_path):
+        with open(file_path, "rb") as f:
+            data = f.read()
+            return base64.b64encode(data).decode()
+
+    # Encode the image
+    background_image_base64 = get_base64_of_image("jcb.jpg")
+    
+    # Inject CSS
+    page_bg_css = f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("data:image/png;base64,{background_image_base64}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    [data-testid="stAppViewContainer"]::before {{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0, 0.88); /* White overlay with 60% opacity */
+        z-index: 0;
+    }}
+    </style>
+    """
+    
+    st.markdown(page_bg_css, unsafe_allow_html=True)
+    st.title("🚜 JCB Work")
+    st.write("Manage your JCB income and payments here!")
     
     url = "https://docs.google.com/spreadsheets/d/1C0ogbuVVdgQtNmfiGGDI_3w6PxQaaojnFwbXJPo5nSQ/edit?usp=sharing"
     '''conn = st.connection("gsheets2", type = GSheetsConnection)
     
     data = conn.read(worksheet="Sheet1", ttl=0)
     df = pd.DataFrame(data)'''
+    st.write("")
+    st.write("")
     
     
     def new_data():
-        conn = st.connection("gsheets2", type = GSheetsConnection)
+        conn = st.connection("gsheets2", type = GSheetsConnection, ttl = 60)
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
     
-        data = conn.read(worksheet="Sheet1", ttl=0)
+        data = conn.read(worksheet="Sheet1")
         df = pd.DataFrame(data)
         
         st.title("JCB Work New Entry")
@@ -56,7 +93,7 @@ def page3():
         
         jcbw_time, jcbw_rate = st.columns([1,1])
         with jcbw_time:
-            j_time1 = st.text_input("Time", str(), placeholder="HH:MM")
+            j_time1 = st.text_input("Time", str("00:00"), placeholder="HH:MM")
             jcbw_time_str = str(j_time1)
         with jcbw_rate:
             j_rate1 = st.text_input("Rate", int())
@@ -112,9 +149,13 @@ def page3():
             
             
     def view_data():
-        conn = st.connection("gsheets2", type = GSheetsConnection)
+        conn = st.connection("gsheets2", type = GSheetsConnection, ttl=300)
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
     
-        data = conn.read(worksheet="Sheet1", ttl=0)
+        data = conn.read(worksheet="Sheet1")
         df = pd.DataFrame(data)
         
         menu_select = st.selectbox("Select View", ['Select', 'All', 'Name Wise', 'Month Wise'])
@@ -149,23 +190,28 @@ def page3():
                 st.write(f"### JCB Work Data for {month_select}")
                 df_sorted = filtered_df.sort_values(by='Date', ascending=True)
                 st.dataframe(df_sorted, hide_index=True)
-            
+                        
         else:
             st.write("Select a valid view")
             
             
             
     def update_data():
-        conn = st.connection("gsheets2", type = GSheetsConnection)
+        conn = st.connection("gsheets2", type = GSheetsConnection, ttl=60)
+        
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
     
-        data = conn.read(worksheet="Sheet1", ttl=0)
+        data = conn.read(worksheet="Sheet1")
         df = pd.DataFrame(data)
         
         st.title("Update JCB Work Data")
         
         jcbw_ch_no, _ = st.columns([1,1])
         with jcbw_ch_no:
-            j_ch_no2 = st.text_input("Enter Challan No: ", int())
+            j_ch_no2 = st.text_input("Enter Challan No: ", int(101))
             jcbw_ch_no_int = int(j_ch_no2)
             
         row = df[df['Ch_No'] == jcbw_ch_no_int].iloc[0]
@@ -244,13 +290,52 @@ def page3():
             conn.update(worksheet="Sheet1", data=df)
             
             st.success("JCB Work Data Successfully Updated")
+            
+            
+    def delete_data():
+        conn = st.connection("gsheets2", type = GSheetsConnection, ttl=60)
+        
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
+    
+        data = conn.read(worksheet="Sheet1")
+        df = pd.DataFrame(data)
+        
+        st.title("Delete JCB Work Data")
+        
+        jcbw_ch_no, _ = st.columns([1,1])
+        with jcbw_ch_no:
+            j_ch_no2 = st.text_input("Enter Challan No: ", int(101))
+            jcbw_ch_no_int = int(j_ch_no2)
+            
+        row = df[df['Ch_No'] == jcbw_ch_no_int].iloc[0]
+        st.subheader("JCB Work Details")
+        
+        st.write(f"**SrNo:**{'&nbsp;'*60} {int(row['SrNo'])}")
+        st.write(f"**Date:**{'&nbsp;'*60} {row['Date']}")
+        st.write(f"**Name:**{'&nbsp;'*57} {row['Name']}")
+        st.write(f"**Challan No:**{'&nbsp;'*46} {int(row['Ch_No'])}")
+        st.write(f"**Time:**{'&nbsp;'*58} {row['Time']}")
+        st.write(f"**Rate:**{'&nbsp;'*59} {int(row['Rate'])}")
+        st.write(f"**Amount:**{'&nbsp;'*52} {int(row['Amount'])}")
+        st.write(f"**Amount Received:**{'&nbsp;'*32} {int(row['Amount_Received'])}")
+        st.write(f"**Amount Pending:**{'&nbsp;'*34} {int(row['Amount_Pending'])}")
+        st.write(f"**Contact No:**{'&nbsp;'*47} {int(row['Contact_No'])}")
+            
+        if st.button("Delete"):
+            condition = df['Ch_No'] == jcbw_ch_no_int
+            df = df[~condition]
+            conn.update(worksheet="Sheet1", data=df)
+            st.success("JCB Work Data Successfully Deleted")
         
         
         
     
     
     def select_work():
-        work_select = st.selectbox("Choose Task: ", ['Select', 'New Data', 'View Data', 'Update Data'])
+        work_select = st.selectbox("Choose Task: ", ['Select', 'New Data', 'View Data', 'Update Data', 'Delete Data'])
         if work_select == 'Select':
             pass
         elif work_select == 'New Data':
@@ -259,6 +344,8 @@ def page3():
             view_data()
         elif work_select == 'Update Data':
             update_data()   
+        elif work_select == 'Delete Data':
+            delete_data()
         else:
             st.write("Select a valid task")
             
