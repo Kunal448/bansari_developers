@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # Import your pages here
-import home, add_site, sites, jcb_work
+import home, add_site, sites, jcb_work, add_ledger, ledger
 
 st.set_page_config(page_title="Bansari Developers", page_icon="🏭", initial_sidebar_state="collapsed")
 
@@ -10,7 +10,7 @@ st.set_page_config(page_title="Bansari Developers", page_icon="🏭", initial_si
 
 with st.sidebar:
     selected = option_menu(
-        "Main Menu", ["Home", "Add Site", "Sites", "JCB Work"],
+        "Main Menu", ["Home", "Add Site", "Manage Sites", "Manage JCB", "Add Ledger", "Manage Ledgers"],
         icons=[],
         menu_icon="cast", default_index=0,
         styles={
@@ -25,5 +25,9 @@ elif selected == "Sites":
     sites.page2()
 elif selected == "JCB Work":
     jcb_work.page3()
+elif selected == "Add Ledger":
+    add_ledger.page4()
+elif selected == "Manage Ledgers":
+    ledger.page5()
 else:
     st.warning("Select Page Above")
