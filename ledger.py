@@ -278,13 +278,13 @@ def page5():
         st.write("")
             
         
-        if st.button("Download Ledger Report"):
+        if st.button("Generate Ledger Report"):
             pdf.output(f"Ledger_Report_{company_select}.pdf")
             
             st.success("Report Generated Successfully")
 
         with open(f"Ledger_Report_{company_select}.pdf", "rb") as f:
-            st.download_button("Download pdf", f, f"Ledger_Report_{company_select}.pdf")
+            st.download_button("Download PDF", f, f"Ledger_Report_{company_select}.pdf")
             st.success("Report Downloaded Successfully") 
             
             
@@ -348,5 +348,6 @@ def page5():
     
 
     open_worksheet(int(result.iloc[0]))
+
 
 
