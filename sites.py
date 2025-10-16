@@ -40,13 +40,19 @@ def page2():
     """
     
     st.markdown(page_bg_css, unsafe_allow_html=True)
-    st.title("🏗️ Sites Page")
-    st.write("Welcome to the Sites Page!")
+    st.title("🏗️ Manage Sites")
+    st.write("Manage all your currently active sites here!")
+    st.write("")
+    st.write("")
     
     url = "https://docs.google.com/spreadsheets/d/1OliyAKJqz_A2NNVcRBdEpkqnUrnGOLaWsAD1niC9F9U/edit?usp=sharing"
-    conn = st.connection("gsheets", type = GSheetsConnection)
+    conn = st.connection("gsheets", type = GSheetsConnection, ttl=60)
+    if st.button("🔄 Refresh Data"):
+        st.cache_data.clear()
+        st.success("✅ Data refreshed!")
+        st.rerun()
     
-    data = conn.read(worksheet="Sheet1", ttl=2)
+    data = conn.read(worksheet="Sheet1")
     df = pd.DataFrame(data)       
         
     l = df['Sites'].tolist()
@@ -59,12 +65,16 @@ def page2():
     # Function to Add New Data
     
     def new_data(sheet_num):
-        conn = st.connection("gsheets", type = GSheetsConnection)
+        conn = st.connection("gsheets", type = GSheetsConnection, ttl=60)
+        if st.button("🔄 Refresh Data "):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
         
         '''data1 = conn.read(worksheet="Sheet2", ttl=2)
         df1 = pd.DataFrame(data1)'''
     
-        data = conn.read(worksheet=sheet_num+1, ttl=2)
+        data = conn.read(worksheet=sheet_num+1)
         df = pd.DataFrame(data)
         
         st.title(f'You are in {site_select}')
@@ -86,7 +96,7 @@ def page2():
                 l_sr_no1 = st.text_input("Serial Number", int(maximum_labour+1))
                 labour_sr_no_int = int(l_sr_no1)
             with labour_date:
-                l_date1 = st.text_input("Date", str(date.today()))
+                l_date1 = st.date_input("Date", None)
                 labour_date_str = str(l_date1)
                 
             labour_person, labour_rate = st.columns([1,1])
@@ -106,7 +116,7 @@ def page2():
             add_labour_data = st.button("Add Labour Data")
             if add_labour_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -147,7 +157,7 @@ def page2():
                 j_sr_no1 = st.text_input("Serial Number", int(maximum_jcb+1))
                 jcb_sr_no_int = int(j_sr_no1)
             with jcb_date:
-                j_date1 = st.text_input("Date", str(date.today()))
+                j_date1 = st.date_input("Date", None)
                 jcb_date_str = str(j_date1)
                 
             jcb_time, jcb_rate = st.columns([1,1])
@@ -167,7 +177,7 @@ def page2():
             add_jcb_data = st.button("Add JCB Data")
             if add_jcb_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -208,7 +218,7 @@ def page2():
                 m_sr_no1 = st.text_input("Serial Number", int(maximum_materials+1))
                 materials_sr_no_int = int(m_sr_no1)
             with materials_date:
-                m_date1 = st.text_input("Date", str(date.today()))
+                m_date1 = st.date_input("Date", None)
                 materials_date_str = str(m_date1)
                 
             materials_type, materials_weight = st.columns([1,1])
@@ -231,7 +241,7 @@ def page2():
             add_materials_data = st.button("Add Materials Data")
             if add_materials_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -271,7 +281,7 @@ def page2():
                 c_sr_no1 = st.text_input("Serial Number", int(maximum_cement+1))
                 cement_sr_no_int = int(c_sr_no1)
             with cement_date:
-                c_date1 = st.text_input("Date", str(date.today()))
+                c_date1 = st.date_input("Date", None)
                 cement_date_str = str(c_date1)
                 
             
@@ -295,7 +305,7 @@ def page2():
             add_cement_data = st.button("Add Cement Data")
             if add_cement_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -336,7 +346,7 @@ def page2():
                 v_sr_no1 = st.text_input("Serial Number", int(maximum_vehicles+1))
                 vehicles_sr_no_int = int(v_sr_no1)
             with vehicles_date:
-                v_date1 = st.text_input("Date", str(date.today()))
+                v_date1 = st.date_input("Date", None)
                 vehicles_date_str = str(v_date1)
                 
             vehicles_type, vehicles_time = st.columns([1,1])
@@ -359,7 +369,7 @@ def page2():
             add_vehicles_data = st.button("Add Other Vehicles Data")
             if add_vehicles_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -400,7 +410,7 @@ def page2():
                 e_sr_no1 = st.text_input("Serial Number", int(maximum_expenses+1))
                 expenses_sr_no_int = int(e_sr_no1)
             with expenses_date:
-                e_date1 = st.text_input("Date", str(date.today()))
+                e_date1 = st.date_input("Date", None)
                 expenses_date_str = str(e_date1)
                 
             expenses_particular, expenses_amount = st.columns([2,1])
@@ -415,7 +425,7 @@ def page2():
             add_expenses_data = st.button("Add Other Expenses Data")
             if add_expenses_data:
                 
-                data = conn.read(worksheet=sheet_num+1, ttl=2)
+                data = conn.read(worksheet=sheet_num+1, ttl=0)
                 df = pd.DataFrame(data)
                 
                 #conn.read(worksheet="Sheet4", usecols=list(range(10)), ttl=2)
@@ -458,12 +468,14 @@ def page2():
                 
                 
     def view_data(sheet_num):
-        conn = st.connection("gsheets", type = GSheetsConnection)
+        conn = st.connection("gsheets", type = GSheetsConnection, ttl=60)
         
-        '''data1 = conn.read(worksheet="Sheet2", ttl=2)
-        df1 = pd.DataFrame(data1)'''
+        if st.button("🔄 Refresh Data"):
+            st.cache_data.clear()
+            st.success("✅ Data refreshed!")
+            st.rerun()
     
-        data = conn.read(worksheet=sheet_num+1, ttl=2)
+        data = conn.read(worksheet=sheet_num+1)
         df = pd.DataFrame(data)
         
         st.title(f'You are in {site_select}')
@@ -552,12 +564,9 @@ def page2():
             pass
         else:
             st.write("Select a valid task")
-        '''data = conn.read(worksheet=f'Sheet{site_sheet_num+1}', ttl=2)
-        df = pd.DataFrame(data)'''
         
      
-     
-     
+         
     
     # Main Call to Open Worksheet            
     open_worksheet(int(result.iloc[0]))   
