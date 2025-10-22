@@ -470,7 +470,7 @@ def page2():
     def view_data(sheet_num):
         conn = st.connection("gsheets", type = GSheetsConnection, ttl=60)
         
-        if st.button("🔄 Refresh Data"):
+        if st.button("🔄 Refresh Data "):
             st.cache_data.clear()
             st.success("✅ Data refreshed!")
             st.rerun()
