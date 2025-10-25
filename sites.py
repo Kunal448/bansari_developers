@@ -55,9 +55,7 @@ def page2():
     data = conn.read(worksheet="Sheet1")
     df = pd.DataFrame(data)       
         
-    l = df['Sites'].tolist()
-    site_select = st.selectbox("Select Site", l)    
-    result = df.loc[df['Sites'] == site_select.strip(), 'Sheet']
+    
     
     
     
@@ -488,54 +486,72 @@ def page2():
             st.title("Labour Data")
             labour_data = df.loc[df['Work'] == 'Labour']
             df_clean = labour_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_labour = labour_data['Amount'].sum()
-            st.write(f'Total Labour Amount: {total_labour} Rs')
+            if df_clean.empty:
+                st.warning("No Labour Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_labour = labour_data['Amount'].sum()
+                st.write(f'Total Labour Amount: {total_labour} Rs')
             
             
         elif table_select == 'JCB':
             st.title("JCB Data")
             jcb_data = df.loc[df['Work'] == 'JCB']
             df_clean = jcb_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_jcb = jcb_data['Amount'].sum()
-            st.write(f'Total JCB Amount: {total_jcb} Rs')
+            if df_clean.empty:
+                st.warning("No JCB Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_jcb = jcb_data['Amount'].sum()
+                st.write(f'Total JCB Amount: {total_jcb} Rs')
             
             
         elif table_select == 'Materials':
             st.title("Materials Data")
             materials_data = df.loc[df['Work'] == 'Materials']
             df_clean = materials_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_materials = materials_data['Amount'].sum()
-            st.write(f'Total Materials Amount: {total_materials} Rs')
+            if df_clean.empty:
+                st.warning("No Materials Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_materials = materials_data['Amount'].sum()
+                st.write(f'Total Materials Amount: {total_materials} Rs')
             
             
         elif table_select == 'Cement':
             st.title("Cement Data")
             cement_data = df.loc[df['Work'] == 'Cement']
             df_clean = cement_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_cement = cement_data['Amount'].sum()
-            st.write(f'Total Cement Amount: {total_cement} Rs')
+            if df_clean.empty:
+                st.warning("No Cement Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_cement = cement_data['Amount'].sum()
+                st.write(f'Total Cement Amount: {total_cement} Rs')
             
         
         elif table_select == 'Other Vehicles':
             st.title("Other Vehicles Data")
             vehicles_data = df.loc[df['Work'] == 'Other Vehicles']
             df_clean = vehicles_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_vehicles = vehicles_data['Amount'].sum()
-            st.write(f'Total Other Vehicles Amount: {total_vehicles} Rs')
+            if df_clean.empty:
+                st.warning("No Other Vehicles Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_vehicles = vehicles_data['Amount'].sum()
+                st.write(f'Total Other Vehicles Amount: {total_vehicles} Rs')
             
             
         elif table_select == 'Other Expenses':
             st.title("Other Expenses Data")
             expenses_data = df.loc[df['Work'] == 'Other Expenses']
             df_clean = expenses_data.dropna(axis=1, how='all')
-            st.dataframe(df_clean)
-            total_expenses = expenses_data['Amount'].sum()
-            st.write(f'Total Other Expenses Amount: {total_expenses} Rs')
+            if df_clean.empty:
+                st.warning("No Other Expenses Data Available")
+            else:
+                st.dataframe(df_clean)
+                total_expenses = expenses_data['Amount'].sum()
+                st.write(f'Total Other Expenses Amount: {total_expenses} Rs')
             
             
         else:
@@ -566,7 +582,13 @@ def page2():
             st.write("Select a valid task")
         
      
-         
-    
-    # Main Call to Open Worksheet            
-    open_worksheet(int(result.iloc[0]))   
+    l = df['Sites'].tolist()
+    if len(l) == 0:
+        st.warning("No Sites Available. Please add new site first.")
+        
+    else:
+        site_select = st.selectbox("Select Site", l)    
+        result = df.loc[df['Sites'] == site_select.strip(), 'Sheet']     
+        
+        # Main Call to Open Worksheet            
+        open_worksheet(int(result.iloc[0]))   
