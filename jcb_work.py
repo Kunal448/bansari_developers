@@ -65,6 +65,13 @@ def page3():
             
         else:        
             maximum_srno = df.iloc[0:, 0:1].max()
+            
+            
+        if df.iloc[3:4, 3:4].empty:
+            maximum_chno = 0
+            
+        else:        
+            maximum_chno = df.iloc[0:, 3:4].max()
         
         jcbw_sr_no, jcbw_date = st.columns([1,1])
         with jcbw_sr_no:
@@ -82,7 +89,7 @@ def page3():
             j_name1 = st.text_input("Name", str(), placeholder="Enter Name")
             jcbw_name_str = str(j_name1)
         with jcbw_ch_no:
-            j_ch_no1 = st.text_input("Challan Number", int())
+            j_ch_no1 = st.text_input("Challan Number", int(maximum_chno+1001))
             jcbw_ch_no_int = int(j_ch_no1)
             
         
@@ -164,7 +171,10 @@ def page3():
         
         elif menu_select == 'All':
             st.write("### All JCB Work Data")
-            st.dataframe(df, hide_index=True)
+            if df.empty:
+                st.warning("No JCB Work Data Available")
+            else:
+                st.dataframe(df, hide_index=True)
             
         elif menu_select == 'Name Wise':
             name_list = df['Name'].unique().tolist()
@@ -211,7 +221,7 @@ def page3():
         
         jcbw_ch_no, _ = st.columns([1,1])
         with jcbw_ch_no:
-            j_ch_no2 = st.text_input("Enter Challan No: ", int(101))
+            j_ch_no2 = st.text_input("Enter Challan No: ", int(1001))
             jcbw_ch_no_int = int(j_ch_no2)
             
         row = df[df['Ch_No'] == jcbw_ch_no_int].iloc[0]
@@ -307,7 +317,7 @@ def page3():
         
         jcbw_ch_no, _ = st.columns([1,1])
         with jcbw_ch_no:
-            j_ch_no2 = st.text_input("Enter Challan No: ", int(101))
+            j_ch_no2 = st.text_input("Enter Challan No: ", int(1001))
             jcbw_ch_no_int = int(j_ch_no2)
             
         row = df[df['Ch_No'] == jcbw_ch_no_int].iloc[0]
