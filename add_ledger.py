@@ -7,10 +7,12 @@ def page4():
     conn = st.connection("gsheets3", type = GSheetsConnection)
     data = conn.read(worksheet="Sheet1", ttl=0)
     st.title("🏗️ Ledger Companies")
-    st.write("Add New Ledger Company Name!")
-    st.write("")
-    st.write("")
+    st.write("Add New Ledger Company Name!")  
     df = pd.DataFrame(data)
+    max_ledger = df['Sheet'].max()  
+    st.write(f"Current number of Ledgers: {'&nbsp;'*1} {int(max_ledger)}")
+    st.write("")
+    st.write("")
     if df.iloc[0:1, 1:2].empty:
         maximum_ledger = 0
         
