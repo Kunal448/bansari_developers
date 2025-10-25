@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
+import numpy as np
 
 def page1():
     st.title("🏗️ Add New Site Page")
@@ -12,6 +13,8 @@ def page1():
     data = conn.read(worksheet="Sheet1", ttl=2)
     df = pd.DataFrame(data)
     max_site = df['Sheet'].max()  
+    if np.isnan(max_site):
+        max_site = 0
     st.write(f"Current number of sites: {'&nbsp;'*1} {int(max_site)}")
     st.write("")
     st.write("")
@@ -20,7 +23,7 @@ def page1():
         site1 = st.text_input("Site Name", str(), placeholder="Type site name here...")
         site_str = str(site1)
         
-    save_site = st.button("Add Site")
+    save_site = st.button("Add Site", type="primary")
         
     if save_site:
         existing_data = conn.read(worksheet="Sheet1", usecols=list(range(2)), ttl=2)
