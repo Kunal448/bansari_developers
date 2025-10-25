@@ -51,9 +51,7 @@ def page5():
     data = conn.read(worksheet="Sheet1")
     df = pd.DataFrame(data)       
     
-    l = df['Company'].tolist() 
-    company_select = st.selectbox("Select Company", l)    
-    result = df.loc[df['Company'] == company_select.strip(), 'Sheet']
+    
     
     
     
@@ -154,138 +152,141 @@ def page5():
             st.rerun()
         data = conn.read(worksheet=f"Sheet{sheet_num+1}")
         df = pd.DataFrame(data)
-        df2 = pd.DataFrame(data)
-        df1 = df.drop("Company Name", axis=1)
-        df1['SrNo'] = df['SrNo'].astype(int)
-        df1['BillNo'] = df['BillNo'].astype(int)
-        df1['Debit_Amount'] = df['Debit_Amount'].astype(int)
-        df1['Credit_Amount'] = df['Credit_Amount'].astype(int)
-        df1['Balance'] = df['Balance'].astype(int)
-        df1["Remarks"] = df["Remarks"].fillna("")
-        
-        df2 = df.drop("Company Name", axis=1)
-        df2['SrNo'] = df['SrNo'].astype(int)
-        df2['BillNo'] = df['BillNo'].astype(int)
-        df2['Debit_Amount'] = df['Debit_Amount'].astype(int)
-        df2['Credit_Amount'] = df['Credit_Amount'].astype(int)
-        df2['Balance'] = df['Balance'].astype(int)
-        df2["Remarks"] = df["Remarks"].fillna("")
-        
-        
-        st.dataframe(df2, hide_index=True)
-        st.write("Total Debit Amount: ", df2['Debit_Amount'].sum())
-        st.write("Total Credit Amount: ", df2['Credit_Amount'].sum())
-        st.write("Total Balance Amount Left: ", df2['Debit_Amount'].sum() - df2['Credit_Amount'].sum())
-        
-        
-        class PDF(FPDF):
-            def header(self):
-                # Company logo
-                self.image("construction.png", 40, 8, 25)  # (x, y, width)
-                self.set_font("Times", "B", 25)
-                self.cell(0, 10, "Bansari Developers", ln=True, align="C")
-                self.ln(10)
+        if df.empty:
+            st.warning("No Ledger Data Available")
+        else:
+            df2 = pd.DataFrame(data)
+            df1 = df.drop("Company Name", axis=1)
+            df1['SrNo'] = df['SrNo'].astype(int)
+            df1['BillNo'] = df['BillNo'].astype(int)
+            df1['Debit_Amount'] = df['Debit_Amount'].astype(int)
+            df1['Credit_Amount'] = df['Credit_Amount'].astype(int)
+            df1['Balance'] = df['Balance'].astype(int)
+            df1["Remarks"] = df["Remarks"].fillna("")
+            
+            df2 = df.drop("Company Name", axis=1)
+            df2['SrNo'] = df['SrNo'].astype(int)
+            df2['BillNo'] = df['BillNo'].astype(int)
+            df2['Debit_Amount'] = df['Debit_Amount'].astype(int)
+            df2['Credit_Amount'] = df['Credit_Amount'].astype(int)
+            df2['Balance'] = df['Balance'].astype(int)
+            df2["Remarks"] = df["Remarks"].fillna("")
+            
+            
+            st.dataframe(df2, hide_index=True)
+            st.write("Total Debit Amount: ", df2['Debit_Amount'].sum())
+            st.write("Total Credit Amount: ", df2['Credit_Amount'].sum())
+            st.write("Total Balance Amount Left: ", df2['Debit_Amount'].sum() - df2['Credit_Amount'].sum())
+            
+            
+            class PDF(FPDF):
+                def header(self):
+                    # Company logo
+                    self.image("construction.png", 40, 8, 25)  # (x, y, width)
+                    self.set_font("Times", "B", 25)
+                    self.cell(0, 10, "Bansari Developers", ln=True, align="C")
+                    self.ln(10)
 
-            def footer(self):
-                self.set_y(-15)
-                self.set_font("Helvetica", "I", 8)
-                self.cell(0, 10, f"Page {self.page_no()}", align="C")
+                def footer(self):
+                    self.set_y(-15)
+                    self.set_font("Helvetica", "I", 8)
+                    self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
-        # ✅ Initialize PDF
-        pdf = PDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.add_page()
-        pdf.set_font("Helvetica", size=10)
-        
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(17, 10, "Ledger: ", ln = False, align="L")
-        pdf.set_font("Helvetica", "", 12)
-        pdf.cell(20, 10, f"{company_select}") 
-        pdf.ln(10)
-        
-        df1["Date"] = pd.to_datetime(df1["Date"])
-        df1 = df1.sort_values(by="Date")
-        from_date = df1["Date"].iloc[0].strftime("%d-%m-%Y")
-        to_date = df1["Date"].iloc[-1].strftime("%d-%m-%Y")
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.cell(16, 10, f"Period: ", align="L")
-        pdf.set_font("Helvetica", "", 12)
-        pdf.cell(30, 10, f"From {from_date} To {to_date}", align="L")
-        pdf.ln(10)
-        
-        pdf.set_font("Helvetica", "BU", 12)        
-        pdf.cell(0, 10, "Account Ledger Report", align="C")
-        pdf.ln(10)
+            # ✅ Initialize PDF
+            pdf = PDF()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.add_page()
+            pdf.set_font("Helvetica", size=10)
+            
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(17, 10, "Ledger: ", ln = False, align="L")
+            pdf.set_font("Helvetica", "", 12)
+            pdf.cell(20, 10, f"{company_select}") 
+            pdf.ln(10)
+            
+            df1["Date"] = pd.to_datetime(df1["Date"])
+            df1 = df1.sort_values(by="Date")
+            from_date = df1["Date"].iloc[0].strftime("%d-%m-%Y")
+            to_date = df1["Date"].iloc[-1].strftime("%d-%m-%Y")
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.cell(16, 10, f"Period: ", align="L")
+            pdf.set_font("Helvetica", "", 12)
+            pdf.cell(30, 10, f"From {from_date} To {to_date}", align="L")
+            pdf.ln(10)
+            
+            pdf.set_font("Helvetica", "BU", 12)        
+            pdf.cell(0, 10, "Account Ledger Report", align="C")
+            pdf.ln(10)
 
-        # ✅ Add Table Header
-        col_width = pdf.w / (len(df1.columns) + 1)  # auto-fit
-        row_height = 8
-        
-        pdf.set_font("Helvetica", "B", 10)
-        for col in df1.columns:
-            pdf.cell(col_width, row_height, col, align="C")
-        pdf.ln(row_height)
-        
-        total_cols = ['Debit_Amount', 'Credit_Amount', 'Balance']
-
-        # Calculate totals
-        debit_total = df2['Debit_Amount'].sum()
-        credit_total = df2['Credit_Amount'].sum()
-        balance_total = debit_total - credit_total
-
-        # Create total row
-        total_row = {}
-        for col in df2.columns:
-            if col == 'Debit_Amount':
-                total_row[col] = debit_total
-            elif col == 'Credit_Amount':
-                total_row[col] = credit_total
-            elif col == 'Balance':
-                total_row[col] = balance_total
-            else:
-                total_row[col] = ''
-
-        # Label for total row
-        total_row['Date'] = 'Total'
-
-        # Append total row to dataframe
-        df_final = pd.concat([df2, pd.DataFrame([total_row])], ignore_index=True)
-
-        '''# ✅ Add Table Rows
-        pdf.set_font("Helvetica", "", 10)
-        for i in range(len(df_final)):
-            for col in df_final.columns:
-                text = str(df_final.iloc[i][col])
-                pdf.cell(col_width, row_height, text, align="C")
-            pdf.ln(row_height)'''
-        
-        for i in range(len(df_final)):
-            row = df_final.iloc[i]
-            # ✅ Check if this is the total row
-            if str(row["Date"]).lower() == "total":
-                pdf.cell(0, 0, "-"*160, align="C", ln=True)
-                pdf.set_font("Helvetica", "B", 10)
-                
-            else:
-                pdf.set_font("Helvetica", "", 10)
-
-            for col in df_final.columns:
-                pdf.cell(col_width, row_height, str(row[col]), align="C")
+            # ✅ Add Table Header
+            col_width = pdf.w / (len(df1.columns) + 1)  # auto-fit
+            row_height = 8
+            
+            pdf.set_font("Helvetica", "B", 10)
+            for col in df1.columns:
+                pdf.cell(col_width, row_height, col, align="C")
             pdf.ln(row_height)
-        pdf.set_font("Helvetica", "", 10)    
-        pdf.cell(0, 0, "-"*160, align="C", ln=True)
-        st.write("")   
-        st.write("")
             
-        
-        if st.button("Generate Ledger Report"):
-            pdf.output(f"Ledger_Report_{company_select}.pdf")
-            
-            st.success("Report Generated Successfully")
+            total_cols = ['Debit_Amount', 'Credit_Amount', 'Balance']
 
-        with open(f"Ledger_Report_{company_select}.pdf", "rb") as f:
-            st.download_button("Download PDF", f, f"Ledger_Report_{company_select}.pdf")
-            st.success("Report Downloaded Successfully") 
+            # Calculate totals
+            debit_total = df2['Debit_Amount'].sum()
+            credit_total = df2['Credit_Amount'].sum()
+            balance_total = debit_total - credit_total
+
+            # Create total row
+            total_row = {}
+            for col in df2.columns:
+                if col == 'Debit_Amount':
+                    total_row[col] = debit_total
+                elif col == 'Credit_Amount':
+                    total_row[col] = credit_total
+                elif col == 'Balance':
+                    total_row[col] = balance_total
+                else:
+                    total_row[col] = ''
+
+            # Label for total row
+            total_row['Date'] = 'Total'
+
+            # Append total row to dataframe
+            df_final = pd.concat([df2, pd.DataFrame([total_row])], ignore_index=True)
+
+            '''# ✅ Add Table Rows
+            pdf.set_font("Helvetica", "", 10)
+            for i in range(len(df_final)):
+                for col in df_final.columns:
+                    text = str(df_final.iloc[i][col])
+                    pdf.cell(col_width, row_height, text, align="C")
+                pdf.ln(row_height)'''
+        
+            for i in range(len(df_final)):
+                row = df_final.iloc[i]
+                # ✅ Check if this is the total row
+                if str(row["Date"]).lower() == "total":
+                    pdf.cell(0, 0, "-"*160, align="C", ln=True)
+                    pdf.set_font("Helvetica", "B", 10)
+                    
+                else:
+                    pdf.set_font("Helvetica", "", 10)
+
+                for col in df_final.columns:
+                    pdf.cell(col_width, row_height, str(row[col]), align="C")
+                pdf.ln(row_height)
+            pdf.set_font("Helvetica", "", 10)    
+            pdf.cell(0, 0, "-"*160, align="C", ln=True)
+            st.write("")   
+            st.write("")
+            
+            var = 0
+            if st.button("Generate Ledger Report"):
+                pdf.output(f"Ledger_Report_{company_select}.pdf")
+                var = 1
+                
+                st.success("Report Generated Successfully")
+            if var == 1:
+                with open(f"Ledger_Report_{company_select}.pdf", "rb") as f:
+                    st.download_button("Download PDF", f, f"Ledger_Report_{company_select}.pdf") 
             
             
             
@@ -299,30 +300,33 @@ def page5():
             st.rerun()
         data = conn.read(worksheet=f"Sheet{sheet_num+1}")
         df = pd.DataFrame(data)
-        df2 = df.drop("Company Name", axis=1)
-        df2['SrNo'] = df['SrNo'].astype(int)
-        df2['BillNo'] = df['BillNo'].astype(int)
-        df2['Debit_Amount'] = df['Debit_Amount'].astype(int)
-        df2['Credit_Amount'] = df['Credit_Amount'].astype(int)
-        df2['Balance'] = df['Balance'].astype(int)
-        df2["Remarks"] = df["Remarks"].fillna("")
-        bill_no_del = st.text_input("Enter Bill Number to Delete Record: ", int(1001))
-        bill_no_del_int = int(bill_no_del)
-        
-        row = df[df['BillNo'] == bill_no_del_int].iloc[0]
-        st.subheader("Ledger Entry Details")
-        
-        st.write(f"**Sr No:**{'&nbsp;'*60} {int(row['SrNo'])}")
-        st.write(f"**Date:**{'&nbsp;'*61} {row['Date']}")
-        st.write(f"**Bill No:**{'&nbsp;'*57} {int(row['BillNo'])}")
-        st.write(f"**Debit Amount:**{'&nbsp;'*42} {int(row['Debit_Amount'])}")
-        st.write(f"**Credit Amount:**{'&nbsp;'*40} {int(row['Credit_Amount'])}")
-        st.write(f"**Balance:**{'&nbsp;'*55} {int(row['Balance'])}")
-        st.write(f"**Remarks:**{'&nbsp;'*53} {row['Remarks']}")
-        if st.button("Delete Entry"):
-            df = df[df['BillNo'] != bill_no_del_int]
-            conn.update(worksheet=f"Sheet{sheet_num+1}", data=df)                
-            st.success("Ledger Data Deleted Successfully")
+        if df.empty:
+            st.warning("No Ledger Data Available")
+        else:
+            df2 = df.drop("Company Name", axis=1)
+            df2['SrNo'] = df['SrNo'].astype(int)
+            df2['BillNo'] = df['BillNo'].astype(int)
+            df2['Debit_Amount'] = df['Debit_Amount'].astype(int)
+            df2['Credit_Amount'] = df['Credit_Amount'].astype(int)
+            df2['Balance'] = df['Balance'].astype(int)
+            df2["Remarks"] = df["Remarks"].fillna("")
+            bill_no_del = st.text_input("Enter Bill Number to Delete Record: ", int(1001))
+            bill_no_del_int = int(bill_no_del)
+            
+            row = df[df['BillNo'] == bill_no_del_int].iloc[0]
+            st.subheader("Ledger Entry Details")
+            
+            st.write(f"**Sr No:**{'&nbsp;'*60} {int(row['SrNo'])}")
+            st.write(f"**Date:**{'&nbsp;'*61} {row['Date']}")
+            st.write(f"**Bill No:**{'&nbsp;'*57} {int(row['BillNo'])}")
+            st.write(f"**Debit Amount:**{'&nbsp;'*42} {int(row['Debit_Amount'])}")
+            st.write(f"**Credit Amount:**{'&nbsp;'*40} {int(row['Credit_Amount'])}")
+            st.write(f"**Balance:**{'&nbsp;'*55} {int(row['Balance'])}")
+            st.write(f"**Remarks:**{'&nbsp;'*53} {row['Remarks']}")
+            if st.button("Delete Entry"):
+                df = df[df['BillNo'] != bill_no_del_int]
+                conn.update(worksheet=f"Sheet{sheet_num+1}", data=df)                
+                st.success("Ledger Data Deleted Successfully")
     
     
     
@@ -344,10 +348,10 @@ def page5():
     
     
     
-    
-    
-
-    open_worksheet(int(result.iloc[0]))
-
-
-
+    l = df['Company'].tolist() 
+    if l==[]:
+        st.warning("No Ledger Companies Available. Please add a company first.")
+    else:
+        company_select = st.selectbox("Select Company", l)    
+        result = df.loc[df['Company'] == company_select.strip(), 'Sheet']
+        open_worksheet(int(result.iloc[0]))
