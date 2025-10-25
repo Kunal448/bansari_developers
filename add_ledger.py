@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st # type: ignore
 from streamlit_gsheets import GSheetsConnection # type: ignore
 import base64
+import numpy as np 
 
 def page4():
     conn = st.connection("gsheets3", type = GSheetsConnection)
@@ -10,6 +11,8 @@ def page4():
     st.write("Add New Ledger Company Name!")  
     df = pd.DataFrame(data)
     max_ledger = df['Sheet'].max()  
+    if np.isnan(max_ledger):
+        max_ledger = 0
     st.write(f"Current number of Ledgers: {'&nbsp;'*1} {int(max_ledger)}")
     st.write("")
     st.write("")
